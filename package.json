@@ -6,14 +6,25 @@
   "private": true,
   "scripts": {
     "pretest": "tsc",
-    "test": "mocha --exit 'build/*/spec.js'"
+    "test": "mocha --exit 'build/spec.js'"
   },
   "author": "Kia Farhang",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sa-express-news/typescript-utils.git"
+  },
   "devDependencies": {
     "@types/chai": "^4.0.5",
     "@types/mocha": "^2.2.44",
+    "@types/nock": "^8.2.1",
     "chai": "^4.1.2",
-    "mocha": "^4.0.1"
+    "mocha": "^4.0.1",
+    "nock": "^9.1.0"
+  },
+  "dependencies": {
+    "@types/request-promise-native": "^1.0.10",
+    "request": "^2.83.0",
+    "request-promise-native": "^1.0.5"
   }
 }
