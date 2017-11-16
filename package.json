@@ -1,0 +1,19 @@
+{
+  "name": "ts-util",
+  "version": "0.0.1",
+  "description": "Collection of Typescript utility code.",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "pretest": "tsc",
+    "test": "mocha --exit 'build/*/spec.js'"
+  },
+  "author": "Kia Farhang",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chai": "^4.0.5",
+    "@types/mocha": "^2.2.44",
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1"
+  }
+}
