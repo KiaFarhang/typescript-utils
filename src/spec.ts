@@ -1,6 +1,7 @@
 import 'mocha';
 import * as chai from 'chai';
 import * as nock from 'nock';
+import * as sinon from 'sinon';
 const assert = chai.assert;
 
 import * as utils from './index';
@@ -184,6 +185,27 @@ describe('Utilities', () => {
                 assert.strictEqual(newDate.getMonth(), 11);
                 assert.strictEqual(newDate.getFullYear(), 2016);
             })
+        });
+    });
+    describe('Miscellaneous code', () => {
+        describe('getRandomBooleanWithSetChance', () => {
+            it('returns a boolean', () => {
+                assert.isBoolean(utils.getRandomBooleanWithSetChance(50));
+            });
+            it('returns true if the random number generated is below the provided chance threshold', () => {
+                const randomStub = sinon.stub(Math, 'random');
+                randomStub.returns(.4);
+                const result = utils.getRandomBooleanWithSetChance(50);
+                randomStub.restore();
+                assert.isTrue(result);
+            });
+            it('returns false if the random number generated is below the provided chance threshold', () => {
+                const randomStub = sinon.stub(Math, 'random');
+                randomStub.returns(.7);
+                const result = utils.getRandomBooleanWithSetChance(50);
+                randomStub.restore();
+                assert.isFalse(result);
+            });
         });
     });
 });

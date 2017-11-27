@@ -45,3 +45,7 @@ export const getFirstOfPreviousMonth = (date: Date): Date => {
 export const getLastOfPreviousMonth = (date: Date): Date => {
     return new Date(date.getFullYear(), date.getMonth(), 0)
 }
+
+export const getRandomBooleanWithSetChance = (percentChance: number): boolean => {
+    return Math.random() * 100 < percentChance;
+}
