@@ -2,6 +2,9 @@ import 'mocha';
 import * as chai from 'chai';
 import * as nock from 'nock';
 import * as sinon from 'sinon';
+import * as path from 'path';
+import * as rp from 'request-promise-native';
+import { cookie } from 'request';
 const assert = chai.assert;
 
 import * as utils from './index';
@@ -47,11 +50,27 @@ describe('Utilities', () => {
         });
     });
     describe('Network code', () => {
+        const endpoint = 'https://example.com';
+        const badEndpoint = 'https://500error.com';
+        before(() => {
+            const badGetServer = nock(badEndpoint)
+                .persist()
+                .get('/')
+                .reply(500);
+
+            const badPostServer = nock(badEndpoint)
+                .persist()
+                .post('/')
+                .reply(500);
+        });
+        after(() => {
+            nock.cleanAll();
+        })
         describe('getJSON', () => {
             let fakeServer;
 
             before(() => {
-                fakeServer = nock('http://example.com')
+                fakeServer = nock('http://foobar.com')
                     .persist()
                     .get('/users/1')
                     .reply(200, {
@@ -64,7 +83,7 @@ describe('Utilities', () => {
             describe('successful request', () => {
                 it('returns an object', async () => {
                     const options: JSONRequestParams = {
-                        uri: 'http://example.com/users/1',
+                        uri: 'http://foobar.com/users/1',
                         json: true,
                     }
                     const result = await utils.getJSON(options);
@@ -91,6 +110,60 @@ describe('Utilities', () => {
                 });
             });
         });
+        describe('getDocument', () => {
+            before(() => {
+                const fakeServer = nock(endpoint)
+                    .persist()
+                    .get('/')
+                    .replyWithFile(200, path.join(__dirname, '/../src/example.html'));
+            });
+            describe('unsuccessful request', () => {
+                it('throws an error if the request does not properly execute', async () => {
+
+                    let err;
+
+                    try {
+                        const result = await utils.getDocument(badEndpoint);
+                    } catch (e) {
+                        err = e;
+                    }
+
+                    assert.typeOf(err, 'Error');
+                });
+            });
+            describe('successful request', async () => {
+                let response, document, cookieJar;
+
+                before(async () => {
+                    response = await utils.getDocument(endpoint);
+                    document = response.document;
+                    cookieJar = response.cookieJar;
+                });
+                it('returns an object', () => {
+                    assert.isObject(response);
+                });
+                it('the object has a document property, which is a Document', () => {
+                    assert.typeOf(document, 'Document');
+                });
+                it('the object has a cookieJar property, which is a request CookieJar', () => {
+                    assert.isObject(cookieJar);
+                    const { setCookie, getCookieString, getCookies } = cookieJar;
+                    assert.isFunction(setCookie);
+                    assert.isFunction(getCookieString);
+                    assert.isFunction(getCookies);
+                });
+                it('if passed a cookieJar, it returns the same one after a request', async () => {
+                    const cookieJar = rp.jar();
+                    const theCookie = cookie('foo=bar');
+                    cookieJar.setCookie(theCookie, 'http://foobar.com');
+
+                    const response = await utils.getDocument(endpoint, cookieJar);
+                    const responseJar = response.cookieJar;
+
+                    assert.strictEqual('foo=bar', responseJar.getCookieString('http://foobar.com'))
+                });
+            });
+        })
     });
     describe('Date code', () => {
         describe('getAllDatesBetweenInclusive', () => {

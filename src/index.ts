@@ -1,6 +1,8 @@
 import * as rp from 'request-promise-native';
+import { JSDOM } from 'jsdom';
 
-import { JSONRequestParams } from './interfaces';
+import { JSONRequestParams, GetDocumentResponse } from './interfaces';
+import { CookieJar } from 'request';
 
 export const everyObjectHasOwnProperty = (objects: object[], property: string): boolean => {
     const propertyTest = (object: object): boolean => {
@@ -24,6 +26,22 @@ export const getJSON = async (params: JSONRequestParams): Promise<any> => {
     catch (e) {
         throw new Error(e);
     }
+}
+
+export const getDocument = async (url: string, jar?: CookieJar): Promise<GetDocumentResponse> => {
+    const cookieJar: CookieJar = !jar ? rp.jar() : jar;
+    try {
+        const html = await rp({ uri: url, jar: cookieJar });
+        const page: Document = new JSDOM(html).window.document;
+
+        return {
+            document: page,
+            cookieJar: cookieJar
+        };
+    } catch (e) {
+        throw new Error(e);
+    }
+
 }
 
 export const getAllDatesBetweenInclusive = (startDate: Date, endDate: Date): Date[] => {
