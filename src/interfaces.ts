@@ -11,3 +11,12 @@ export interface JSONRequestParams {
     headers?: Object;
     json: true;
 }
+
+export interface PostFormParams {
+    method: 'POST';
+    uri: string;
+    form: object;
+    jar?: CookieJar;
+    headers?: object;
+    followAllRedirects?: boolean;
+}

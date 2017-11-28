@@ -9,7 +9,7 @@ const assert = chai.assert;
 
 import * as utils from './index';
 
-import { JSONRequestParams } from './interfaces';
+import { JSONRequestParams, PostFormParams } from './interfaces';
 
 describe('Utilities', () => {
     describe('Object code', () => {
@@ -163,7 +163,56 @@ describe('Utilities', () => {
                     assert.strictEqual('foo=bar', responseJar.getCookieString('http://foobar.com'))
                 });
             });
-        })
+        });
+        describe('postForm', () => {
+            before(() => {
+                const fakeServer = nock(endpoint)
+                    .persist()
+                    .post('/', {
+                        username: 'kia',
+                        password: 'alvvays'
+                    })
+                    .reply(200, 'foobar');
+            });
+            describe('unsuccessful request', () => {
+                it('throws an error if the request does not properly execute', async () => {
+
+                    let err;
+
+                    const params: PostFormParams = {
+                        method: 'POST',
+                        uri: badEndpoint,
+                        form: {
+                            username: 'kia'
+                        }
+                    };
+
+                    try {
+                        const result = await utils.postForm(params);
+                    } catch (e) {
+                        err = e;
+                    }
+
+                    assert.typeOf(err, 'Error');
+                });
+            });
+            describe('successful request', () => {
+                it('returns whatever the server should return', async () => {
+                    const params: PostFormParams = {
+                        method: 'POST',
+                        uri: endpoint,
+                        form: {
+                            username: 'kia',
+                            password: 'alvvays'
+                        }
+                    };
+
+                    const response = await utils.postForm(params);
+                    assert.isString(response);
+                    assert.strictEqual(response, 'foobar');
+                });
+            });
+        });
     });
     describe('Date code', () => {
         describe('getAllDatesBetweenInclusive', () => {

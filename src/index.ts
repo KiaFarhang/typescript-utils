@@ -1,7 +1,7 @@
 import * as rp from 'request-promise-native';
 import { JSDOM } from 'jsdom';
 
-import { JSONRequestParams, GetDocumentResponse } from './interfaces';
+import { JSONRequestParams, GetDocumentResponse, PostFormParams } from './interfaces';
 import { CookieJar } from 'request';
 
 export const everyObjectHasOwnProperty = (objects: object[], property: string): boolean => {
@@ -41,7 +41,15 @@ export const getDocument = async (url: string, jar?: CookieJar): Promise<GetDocu
     } catch (e) {
         throw new Error(e);
     }
+}
 
+export const postForm = async (params: PostFormParams): Promise<any> => {
+    try {
+        const postResponse = await rp(params);
+        return postResponse;
+    } catch (e) {
+        throw new Error(e);
+    }
 }
 
 export const getAllDatesBetweenInclusive = (startDate: Date, endDate: Date): Date[] => {
